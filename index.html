@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED ALERT - Vulnerability Scanner</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <pre class="ascii-art">
+ ____  _____ ____     _    _     _____ ____ _____ 
+|  _ \| ____|  _ \   / \  | |   | ____|  _ \_   _|
+| |_) |  _| | | | | / _ \ | |   |  _| | |_) || |  
+|  _ <| |___| |_| |/ ___ \| |___| |___|  _ < | |  
+|_| \_\_____|____/_/   \_\_____|_____|_| \_\ |_|  
+                </pre>
+                <div class="subtitle">VULNERABILITY SCANNER v1.1.0</div>
+            </div>
+        </header>
+
+        <main>
+            <div class="terminal-window">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <span class="terminal-button red"></span>
+                        <span class="terminal-button yellow"></span>
+                        <span class="terminal-button green"></span>
+                    </div>
+                    <div class="terminal-title">terminal@redalert:~</div>
+                </div>
+                <div class="terminal-content" id="terminal-output">
+                    <div class="terminal-line">Welcome to RED ALERT Vulnerability Scanner.</div>
+                    <div class="terminal-line">Type 'help' for available commands or use the form below.</div>
+                    <div class="terminal-line terminal-prompt">$</div>
+                </div>
+            </div>
+
+            <div class="scan-form">
+                <h2><i class="fas fa-crosshairs"></i> Target Configuration</h2>
+                <form id="scan-form">
+                    <div class="form-group">
+                        <label for="target">Target IP/Hostname:</label>
+                        <input type="text" id="target" name="target" placeholder="e.g., 192.168.1.1 or example.com" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ports">Port Range:</label>
+                            <input type="text" id="ports" name="ports" placeholder="e.g., 1-1000 or 22,80,443" value="1-1000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="threads">Threads:</label>
+                            <input type="number" id="threads" name="threads" min="1" max="10" value="10">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="timeout">Timeout (sec):</label>
+                            <input type="number" id="timeout" name="timeout" min="0.1" max="5" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="format">Report Format:</label>
+                        <select id="format" name="format">
+                            <option value="html">HTML</option>
+                            <option value="json">JSON</option>
+                            <option value="txt">Text</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-radiation"></i> Launch Scan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="results-container hidden" id="results-container">
+                <div class="results-header">
+                    <h2><i class="fas fa-chart-network"></i> Scan Results</h2>
+                    <div class="results-actions">
+                        <button id="download-report" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Download Report
+                        </button>
+                        <button id="clear-results" class="btn btn-secondary">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="scan-info" id="scan-info">
+                    <div class="info-item">
+                        <span class="info-label">Target:</span>
+                        <span class="info-value" id="info-target">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Start Time:</span>
+                        <span class="info-value" id="info-start-time">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Duration:</span>
+                        <span class="info-value" id="info-duration">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Open Ports:</span>
+                        <span class="info-value" id="info-open-ports">-</span>
+                    </div>
+                </div>
+                
+                <div class="results-tabs">
+                    <button class="tab-btn active" data-tab="ports-tab">Ports & Services</button>
+                    <button class="tab-btn" data-tab="vulns-tab">Vulnerabilities</button>
+                    <button class="tab-btn" data-tab="raw-tab">Raw Output</button>
+                </div>
+                
+                <div class="tab-content">
+                    <div id="ports-tab" class="tab-pane active">
+                        <table class="results-table" id="ports-table">
+                            <thead>
+                                <tr>
+                                    <th>Port</th>
+                                    <th>Service</th>
+                                    <th>Product</th>
+                                    <th>Version</th>
+                                    <th>Extra Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Ports data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="vulns-tab" class="tab-pane">
+                        <div id="vulns-container">
+                            <!-- Vulnerabilities data will be inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div id="raw-tab" class="tab-pane">
+                        <pre id="raw-output"></pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="progress-overlay hidden" id="progress-overlay">
+            <div class="progress-container">
+                <h3>Scan in Progress</h3>
+                <div class="progress-stages">
+                    <div class="progress-stage active" id="stage-init">
+                        <div class="stage-icon"><i class="fas fa-rocket"></i></div>
+                        <div class="stage-label">Initializing</div>
+                    </div>
+                    <div class="progress-stage" id="stage-port-scan">
+                        <div class="stage-icon"><i class="fas fa-network-wired"></i></div>
+                        <div class="stage-label">Port Scanning</div>
+                    </div>
+                    <div class="progress-stage" id="stage-service-scan">
+                        <div class="stage-icon"><i class="fas fa-server"></i></div>
+                        <div class="stage-label">Service Detection</div>
+                    </div>
+                    <div class="progress-stage" id="stage-vuln-scan">
+                        <div class="stage-icon"><i class="fas fa-bug"></i></div>
+                        <div class="stage-label">Vulnerability Check</div>
+                    </div>
+                    <div class="progress-stage" id="stage-report">
+                        <div class="stage-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="stage-label">Generating Report</div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="scan-progress-bar"></div>
+                </div>
+                <div class="progress-status" id="progress-status">Initializing scan...</div>
+                
+                <!-- Add abort button to the progress overlay -->
+                <div class="progress-actions">
+                    <button id="progress-abort-btn" class="btn btn-danger">
+                        <i class="fas fa-stop-circle"></i> Abort Scan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-text">RED ALERT Vulnerability Scanner &copy; 2025</div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
